@@ -123,7 +123,7 @@ public class Compressor {
             return .failure(.badCompressor)
         }
 
-        if data.isEmpty { return .success(Data()) }
+        if data.isEmpty { return .success(data) }
 
         let srcCount = data.count
         let bound = type.bound(compressor, data.count)
@@ -139,6 +139,7 @@ public class Compressor {
         }
 
         if compressedSize <= 0 {
+            dstPtr.deallocate()
             return .failure(.compressionFailed)
         }
 
@@ -179,6 +180,8 @@ public class Decompressor {
             return .failure(.badDecompressor)
         }
 
+        if data.isEmpty { return .success(data) }
+
         var decompressedData: Data
         var actualSize: UnsafeMutablePointer<Int>? = nil
         switch size {
@@ -191,6 +194,9 @@ public class Decompressor {
             guard let size = gzipSize(data) else { return .failure(.unknownSize) }
             decompressedData = Data(count: size)
         }
+
+
+        defer { actualSize?.deallocate() }
 
         let srcCount = data.count
         let dstCount = decompressedData.count
