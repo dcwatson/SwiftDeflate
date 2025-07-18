@@ -1,0 +1,5 @@
+module CLibDeflate [system][extern_c] {
+    header "SwiftDeflate.h"
+    link "deflate"
+    export *
+}
